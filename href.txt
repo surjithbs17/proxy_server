@@ -1,0 +1,2 @@
+<p>The document has moved 
+<a href="http://umich.edu/favicon.ico">here</a>.</p>
