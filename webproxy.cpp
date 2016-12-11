@@ -83,7 +83,7 @@ int socket_creation(char* port)
     freeaddrinfo(res);
 
     // listen for incoming connections
-    if ( listen (socket_desc, 100) != 0 )
+    if ( listen (socket_desc, 20) != 0 )
     {
         printf("ERROR During Listening");
         exit(1);
@@ -384,7 +384,7 @@ void *connection_handler(void* variable)
 	}
 	else if (s == 0)
 	{
-		printf("Client disconnected (recv returns zero).\n");
+		//printf("Client disconnected (recv returns zero).\n");
 	}
 	else
 	{
