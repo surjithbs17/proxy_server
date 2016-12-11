@@ -54,7 +54,7 @@ int socket_creation(char* port)
 
 
     memset (&server, 0, sizeof(server));
-    // getaddrinfo for host
+
     server.ai_family = AF_INET;
     server.ai_socktype = SOCK_STREAM;
     server.ai_flags = AI_PASSIVE;
@@ -113,28 +113,30 @@ void link_to_file(char* buf,char * http_cmd_string)
 		strcpy(url_cpy_1,buf);
 		strcpy(url_cpy,buf);
 
-		char* temp=strtok(url_cpy,"//");
-		//char* ret = strchr(temp, ':');
+		char* temp=(char *)malloc(MESSAGE_LENGTH);
+				temp = strtok(url_cpy,"//");
+
 
 		char* ret = (char *)malloc(MESSAGE_LENGTH);
 		bzero(ret,sizeof(ret));
-		//cout <<"ret  fdd" << ret << "  temp "<< temp << endl;
+
 		temp = strtok(NULL,"/");
-		//cout <<"ret  fdd" << ret << "  temp "<< temp << endl;
+
 		ret = strchr(temp, ':');
 		if(ret!= NULL)
 		{
-			//cout << "Inside port processing" << ret << endl;
 
 
-			char* port_temp = strtok(ret,":");
-			//cout <<"PortTemp " << port_temp << "    " << strlen(temp)<< endl;
-			char* port;
+
+			char* port_temp = (char *)malloc(MESSAGE_LENGTH);
+					port_temp = strtok(ret,":");
+
+			char* port =(char *) malloc(100);
 
 			strncpy(port,port_temp+1,strlen(port_temp)-1);
 			port_num = atoi(port);
 			temp = strtok(temp,":");
-			//cout << "Port " << port <<"   " <<port_num  << "Host addr " << temp <<  endl;
+
 		}
 		else
 		{
@@ -142,20 +144,21 @@ void link_to_file(char* buf,char * http_cmd_string)
 			temp = strtok(temp,"/");
 		}
 
-		//cout << "Host Address  : " << temp << endl;
+
 		char* url = (char *)malloc(MESSAGE_LENGTH);
 		bzero(url,sizeof(url));
 
 
 		host=gethostbyname(temp);
 		strcat(url_cpy_1,"^]");
-		char* url_temp = strtok(url_cpy_1,"//");
+		char* url_temp = (char *)malloc(MESSAGE_LENGTH);
+		url_temp = strtok(url_cpy_1,"//");
 		url_temp = strtok(NULL,"/");
 		if(url_temp!=NULL)
 		{
 			url_temp=strtok(NULL,"^]");
 		}
-		//printf("\npath = %s\nPort = %d\n",url_temp,port_num);
+
 		bzero(url,sizeof(url));
 		if(url_temp!=NULL)
 		{
@@ -165,18 +168,19 @@ void link_to_file(char* buf,char * http_cmd_string)
 			strcpy(url,temp);
 
 
-		//cout << "Valid http Request  " << url  << endl;
 
-		char* md5_hash = md5calculator(url);
 
-		//cout << md5_hash << endl;
+		char* md5_hash = (char *)malloc(MESSAGE_LENGTH);
+		md5_hash = md5calculator(url);
+
+
 		char* filename = (char* )malloc(MESSAGE_LENGTH);
 
 
 
 		sprintf(filename,"cache/%s",md5_hash);
 
-		//cout << "File_name " << filename << endl;
+
 		int diff;
 		bool exists = false;
 		if(doesFileExist(filename) == 0)
@@ -190,34 +194,29 @@ void link_to_file(char* buf,char * http_cmd_string)
 		}
 
 
-		//cout << "TIme Diff  " << diff << endl;
-
 		if((diff < timeout_value) && exists )
 		{
-			cout << "Cache Available Not Pre fetching" << endl;
+//			cout << "Cache Available Not Pre fetching" << endl;
 
 
 		}
 		else
 		{
 			FILE* md5file = fopen(filename,"w+");
-			//cout <<filename << endl;
-
-
 
 			bzero((char*)&host_addr,sizeof(host_addr));
 			host_addr.sin_port=htons(port_num);
 			host_addr.sin_family=AF_INET;
 			bcopy((char*)host->h_addr,(char*)&host_addr.sin_addr.s_addr,host->h_length);
 
-			//cout << "before sockfd" << endl;
+
 			sockfd=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
-			//cout << "after sockfd" << endl;
+
 			newsockfd=connect(sockfd,(struct sockaddr*)&host_addr,sizeof(struct sockaddr));
-			//printf("\nConnected to %s  IP - %s\n",temp,inet_ntoa(host_addr.sin_addr));
+
 			if(newsockfd<0)
 			{
-				cout <<"Error in connecting to remote server" << endl;
+				cout <<"Error in connecting to remote serve r" << url << endl;
 			}
 
 			else
@@ -225,19 +224,19 @@ void link_to_file(char* buf,char * http_cmd_string)
 				bzero(send_buf,sizeof(send_buf));
 				if(url_temp!=NULL)
 				{
-					//cout << "HTTP Command " << http_cmd[2] << endl;
+
 					sprintf(send_buf,"GET /%s %s\r\nHost: %s\r\nConnection: close\r\n\r\n",url_temp,http_cmd_string,temp);
-					//cout << send_buf << endl;
+
 				}
 				else
 				{
-					//cout << "HTTP Command " << http_cmd[2] << endl;
+
 					sprintf(send_buf,"GET / %s\r\nHost: %s\r\nConnection: close\r\n\r\n",http_cmd_string,temp);
-					//cout << send_buf << endl;
+
 				}
 
 				int x = send(sockfd,send_buf,strlen(send_buf),0);
-				printf("\n%s\n",send_buf);
+
 				if(x<0)
 				{
 					cout << "Error writing to socket" << endl;
@@ -246,12 +245,12 @@ void link_to_file(char* buf,char * http_cmd_string)
 				{
 					do
 					{
-						bzero(recv_buf,sizeof(recv_buf));
-						s=recv(sockfd,recv_buf,sizeof(recv_buf),0);
+						bzero(recv_buf,MESSAGE_LENGTH);
+						s=recv(sockfd,recv_buf,MESSAGE_LENGTH,0);
 						if(!(s<=0))
 						{
 
-							cout << "Count   " << s << endl;
+							//cout << "Count   " << s << endl;
 							fwrite(recv_buf, sizeof(char),s,md5file);
 						}
 					}while(s>0);
@@ -259,6 +258,12 @@ void link_to_file(char* buf,char * http_cmd_string)
 				}
 			}
 		}
+	}
+
+	for (int i = 0;i<10;i++)
+	{
+		close(sockfd);
+		close(newsockfd);
 	}
 }
 
@@ -269,7 +274,7 @@ void link_prefetch(char* file_name, char* http_type)
 
 	FILE file;
 
-	char* token;
+	char* token = (char *)malloc(MESSAGE_LENGTH);;
 	char command[MESSAGE_LENGTH],buf[MESSAGE_LENGTH];
 
 	sprintf(command, "cat %s | grep href > href.txt",(char* ) file_name);
@@ -278,60 +283,19 @@ void link_prefetch(char* file_name, char* http_type)
 
 	std::ifstream infile("href.txt");
 
-
-	cout << "Inside Prefetch \n\n\n\n\n\n\n" << endl;
 	std::string line;
 	while (std::getline(infile, line))
 	{
-		//cout << line << endl;
+
 		sscanf(line.c_str(), "<a href=\"%[^\"]\"",buf);
 
-		cout << buf << endl;
+
 		link_to_file(buf,http_type);
-	    // process pair (a,b)
-	}
-
-//sscanf(buf, "<a href=\"%[^\"]\"", prefetch_url);
-
-	/**
-
-	std::ifstream cached_file(file_name);
-	std::stringstream string_buf;
-	string_buf << cached_file.rdbuf();
-	char* buffer =(char *) string_buf.str().c_str();
-	//char *buffer = (char* ) string_buf.c_str();
-	//bzero(data_to_send,sizeof(data_to_send));
-
-	const char delim[10] = "<a href=\"";
-	const char end_delim[10] = "\"";
-
-
-
-	token = strtok(buffer,delim);
-	char* temp = (char *)malloc(MESSAGE_LENGTH);
-	bzero(temp,sizeof(temp));
-
-	cout << "Delim " << delim << endl;
-	while ( token!= NULL )
-	{
-		token = strtok(NULL,end_delim);
-		sscanf (token,"%s",temp);
-		cout << "token  " <<  temp << endl;
-
-		//cout << token << endl;
-		//sscanf (token,"%s",temp);
-		cout << "Pre Fetching" << endl;
-		//cout << "Temp  at delim "<< temp << endl;
-		cout << "End Delim  " << end_delim << endl;
-		//token = strtok(NULL,end_delim);
-		//sscanf (token,"%s",temp);
-		//cout <<"Temp at / " << temp << endl;
-		token = strtok(NULL,delim);
-
 
 	}
 
-	**/
+
+
 }
 
 time_t get_mtime(const char *path)
@@ -342,7 +306,6 @@ time_t get_mtime(const char *path)
         return 0;
     }
 
-    printf("Last modified time: %s", ctime(&statbuf.st_mtime));
     return statbuf.st_mtime;
 }
 
@@ -352,7 +315,6 @@ int doesFileExist(const char *fileName)
     int result = stat(fileName, &st);
     if(result == 0)
     {
-        //printf("\nFile exists!\n");
         return 0;
     }
     else
@@ -368,12 +330,25 @@ char* md5calculator(char* test_string)
     bzero(value,sizeof(value));
     //bzero(last_4,sizeof(last_4));
     bzero(md5command,sizeof(md5command));
-    sprintf(md5command,"echo %s | md5sum >> md5value.txt",test_string);
+    //int tid = (int ) gettid(void);
+   // pthread_id_np_t   tid;
+    //tid = pthread_getthreadid_np();
+
+    pthread_t tid =pthread_self();
+
+    sprintf(md5command,"echo %s | md5sum >> temp/md5value%u.txt",test_string,tid);
+    //cout << md5command << endl;
     system(md5command);
-    FILE* md5file = fopen("md5value.txt","r+");
+    //cout << md5command << endl;
+    char filename[256];
+    sprintf(filename,"temp/md5value%u.txt",tid);
+
+    FILE* md5file = fopen(filename,"r+");
     fscanf(md5file,"%s",value);
     //printf("\nMD5 Value - %s\n",value);
-    system("rm md5value.txt");
+    char rm_command[256];
+    sprintf(rm_command,"rm %s",filename);
+    system(rm_command);
     return value;
 }
 
@@ -392,7 +367,6 @@ void *connection_handler(void* variable)
 	bzero(recv_buf,sizeof(recv_buf));
 	bzero(http_cmd,sizeof(http_cmd));
 
-	cout << recv_buf <<endl;
 
 	int s = recv(sock_client,recv_buf,MESSAGE_LENGTH,0);
 
@@ -403,11 +377,10 @@ void *connection_handler(void* variable)
 	keep_alive = strstr(recv_buf, needle);
 	int port_num = 0;
 
-	cout << recv_buf  <<"\n" << s << endl;
 
 	if( s < 0 )
 	{
-		printf("Recieve error\n");
+		//printf("Recieve error\n");
 	}
 	else if (s == 0)
 	{
@@ -418,36 +391,23 @@ void *connection_handler(void* variable)
 		bzero(recv_buf_copy,sizeof(recv_buf_copy));
 		strcpy(recv_buf_copy,recv_buf);
 
-		cout << recv_buf << endl;
-
-		//sscanf(recv_buf,"%s %s %s",http_cmd[0],http_cmd[1],http_cmd[2]);
-
 		http_cmd[0] = strtok (recv_buf_copy, " \t\n");
 		http_cmd[1] = strtok (NULL, " \t");
 		http_cmd[2] = strtok (NULL, " \t\n");
 		char port[10];
 		int v_1,v_0;
 
-		//cout << "After Scanf "<< endl;
-		//cout << http_cmd[0] << http_cmd[1] << http_cmd[2] << endl;
-
 		if ( strncmp(http_cmd[0], "GET", 3)==0 )
 		{
-			cout << "Inside Get" << endl;
 
 			if ( (v_1 = strncmp(http_cmd[2], "HTTP/1.1",8)==0) || (v_0 =  strncmp(http_cmd[2], "HTTP/1.0",8)==0 ) )
 			{
-				//cout <<"Version HTTP 1.1 or HTTP 1.0" << endl;
 
 				if(v_1 == 0)
 				{
-					cout << "HTTP Command " << http_cmd[2] << endl;
-					cout << "Version HTTP 1.1" << endl;
 				}
 				if(v_0 == 0)
 				{
-					cout << "HTTP Command " << http_cmd[2] << endl;
-					cout << "Version HTTP 1.0" << endl;
 				}
 
 				char* url_cpy =  (char *)malloc(MESSAGE_LENGTH);
@@ -459,28 +419,23 @@ void *connection_handler(void* variable)
 					strcpy(url_cpy_1,http_cmd[1]);
 					strcpy(url_cpy,http_cmd[1]);
 
-					char* temp=strtok(url_cpy,"//");
-					//char* ret = strchr(temp, ':');
+					char* temp= (char *)malloc(MESSAGE_LENGTH);
+							temp = strtok(url_cpy,"//");
 
 					char* ret = (char *)malloc(MESSAGE_LENGTH);
 					bzero(ret,sizeof(ret));
-					//cout <<"ret  fdd" << ret << "  temp "<< temp << endl;
 					temp = strtok(NULL,"/");
-					//cout <<"ret  fdd" << ret << "  temp "<< temp << endl;
 					ret = strchr(temp, ':');
 					if(ret!= NULL)
 					{
-						cout << "Inside port processing" << ret << endl;
 
-
-						char* port_temp = strtok(ret,":");
-						cout <<"PortTemp " << port_temp << "    " << strlen(temp)<< endl;
+						char* port_temp = (char *)malloc(MESSAGE_LENGTH);
+						port_temp =	strtok(ret,":");
 
 
 						strncpy(port,port_temp+1,strlen(port_temp)-1);
 						port_num = atoi(port);
 						temp = strtok(temp,":");
-						//cout << "Port " << port <<"   " <<port_num  << "Host addr " << temp <<  endl;
 					}
 					else
 					{
@@ -488,20 +443,19 @@ void *connection_handler(void* variable)
 						temp = strtok(temp,"/");
 					}
 
-					cout << "Host Address  : " << temp << endl;
 					char* url = (char *)malloc(MESSAGE_LENGTH);
 					bzero(url,sizeof(url));
 
 
 					host=gethostbyname(temp);
 					strcat(url_cpy_1,"^]");
-					char* url_temp = strtok(url_cpy_1,"//");
+					char* url_temp = (char *)malloc(MESSAGE_LENGTH);
+							url_temp = strtok(url_cpy_1,"//");
 					url_temp = strtok(NULL,"/");
 					if(url_temp!=NULL)
 					{
 						url_temp=strtok(NULL,"^]");
 					}
-					printf("\npath = %s\nPort = %d\n",url_temp,port_num);
 					bzero(url,sizeof(url));
 					if(url_temp!=NULL)
 					{
@@ -511,18 +465,15 @@ void *connection_handler(void* variable)
 						strcpy(url,temp);
 
 
-					cout << "Valid http Request  " << url  << endl;
 
 					char* md5_hash = md5calculator(url);
 
-					//cout << md5_hash << endl;
 					char* filename = (char* )malloc(MESSAGE_LENGTH);
 
 
 
 					sprintf(filename,"cache/%s",md5_hash);
 
-					cout << "File_name" << filename << endl;
 					int diff;
 					bool exists = false;
 					if(doesFileExist(filename) == 0)
@@ -536,11 +487,10 @@ void *connection_handler(void* variable)
 					}
 
 
-					cout << "TIme Diff  " << diff << endl;
 
 					if((diff < timeout_value) && exists )
 					{
-						cout << "Cache Available" << endl;
+						cout << "Cache Available  "  << url << endl;
 						int file;
 						file= open(filename, O_RDONLY);
 						int bytes_read;
@@ -557,7 +507,6 @@ void *connection_handler(void* variable)
 					else
 					{
 						FILE* md5file = fopen(filename,"w+");
-						//cout <<filename << endl;
 
 
 
@@ -566,14 +515,11 @@ void *connection_handler(void* variable)
 						host_addr.sin_family=AF_INET;
 						bcopy((char*)host->h_addr,(char*)&host_addr.sin_addr.s_addr,host->h_length);
 
-						cout << "before sockfd" << endl;
 						sockfd=socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
-						cout << "after sockfd" << endl;
 						newsockfd=connect(sockfd,(struct sockaddr*)&host_addr,sizeof(struct sockaddr));
-						printf("\nConnected to %s  IP - %s\n",temp,inet_ntoa(host_addr.sin_addr));
 						if(newsockfd<0)
 						{
-							cout <<"Error in connecting to remote server" << endl;
+							cout <<"Error in connecting to remote server" << url << endl;
 						}
 
 						else
@@ -581,19 +527,14 @@ void *connection_handler(void* variable)
 							bzero(send_buf,sizeof(send_buf));
 							if(url_temp!=NULL)
 							{
-								cout << "HTTP Command " << http_cmd[2] << endl;
-								sprintf(send_buf,"GET /%s %s\r\nHost: %s\r\nConnection: close\r\n\r\n",url_temp,http_cmd[2],temp);
-								cout << send_buf << endl;
+								sprintf(send_buf,"GET /%s %s\r\nHost: %s\r\nConnection: close\r\n\r\n\n",url_temp,http_cmd[2],temp);
 							}
 							else
 							{
-								cout << "HTTP Command " << http_cmd[2] << endl;
-								sprintf(send_buf,"GET / %s\r\nHost: %s\r\nConnection: close\r\n\r\n",http_cmd[2],temp);
-								cout << send_buf << endl;
+								sprintf(send_buf,"GET / %s\r\nHost: %s\r\nConnection: close\r\n\r\n\n",http_cmd[2],temp);
 							}
 
 							int x = send(sockfd,send_buf,strlen(send_buf),0);
-							printf("\n%s\n",send_buf);
 							if(x<0)
 							{
 								cout << "Error writing to socket" << endl;
@@ -602,18 +543,16 @@ void *connection_handler(void* variable)
 							{
 								do
 								{
-									bzero(recv_buf,sizeof(recv_buf));
-									s=recv(sockfd,recv_buf,sizeof(recv_buf),0);
+									bzero(recv_buf,MESSAGE_LENGTH);
+									s=recv(sockfd,recv_buf,MESSAGE_LENGTH,0);
 									if(!(s<=0))
 									{
 										send(sock_client,recv_buf,s,0);
-										//cout << "printing the fwd msg" << endl;
-										//cout << recv_buf <<  endl;
-										cout << "\n\nCount   " << s << endl;
 										fwrite(recv_buf, sizeof(char),s,md5file);
 									}
 								}while(s>0);
 								fclose(md5file);
+								cout << "File has been fetched from server  " << url << endl;
 								link_prefetch(filename,http_cmd[1]);
 							}
 
@@ -625,22 +564,26 @@ void *connection_handler(void* variable)
 					}
 					else
 					{
-						cout << "Handle the error Not a valid http request" << endl;
-						send(newsockfd,"400 : BAD REQUEST\nONLY HTTP REQUESTS ALLOWED",18,0);
-
+						//send(newsockfd,"400 : BAD REQUEST\nONLY HTTP REQUESTS ALLOWED",18,0);
+						char error_msg[300] = "<html>\r\n<body>\r\n<h1>400 Bad Request Reason: Invalid  %s : %s</h1>\r\n\n</body>\r\n</html>\r\n\n";
+						send(newsockfd,error_msg,sizeof(error_msg),0);
 					}
 
 			}
 			else
 			{
-				cout << "Handle the error to serve HTTP invalid version" << endl;
+
+				char error_msg[300] = "<html>\r\n<body>\r\n<h1>400 Bad Request Reason: Invalid  %s : %s</h1>\r\n\n</body>\r\n</html>\r\n\n";
+				send(newsockfd,error_msg,sizeof(error_msg),0);
 			}
 
 
 		}
 		else
 		{
-			cout << "Handle the error to serve not implemented" << endl;
+			char error_msg[300] = "<html>\r\n<body>\r\n<h1>400 Bad Request Reason: Invalid  %s : %s</h1>\r\n\n</body>\r\n</html>\r\n\n";
+			send(newsockfd,error_msg,sizeof(error_msg),0);
+
 		}
 
 
@@ -648,11 +591,14 @@ void *connection_handler(void* variable)
 	}
 
 
-	cout << "Leaving thread" << endl;
-	close(newsockfd);
-	close(sockfd);
-	shutdown (sock_client, SHUT_RDWR);
-	close(sock_client);
+	for(int i =0; i<10;i++)
+	{
+		close(newsockfd);
+		close(sockfd);
+		//shutdown (sock_client, SHUT_WR);
+		close(sock_client);
+
+	}
 	//close(sock_client);
 	return NULL;
 
@@ -705,7 +651,7 @@ int main(int argc , char *argv[]) {
     {
     	if (client_sock == 0)
     		continue;
-    	printf("Master Accepted Sock --- %d\nThread Generated Sock --- %d\n",socket_desc,client_sock);
+    	//printf("Master Accepted Sock --- %d\nThread Generated Sock --- %d\n",socket_desc,client_sock);
 
     	pthread_t first_thread;
 
@@ -714,7 +660,7 @@ int main(int argc , char *argv[]) {
         	printf("could not create thread");
         }
 
-        printf("Inside Accept While Loop\n");
+        //printf("Inside Accept While Loop\n");
 
     }
 

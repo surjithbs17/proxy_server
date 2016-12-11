@@ -1,2 +1,43 @@
-<p>The document has moved 
-<a href="http://umich.edu/favicon.ico">here</a>.</p>
+    <link rel="stylesheet" href="style.css">
+      
+<a href="http://ecee.colorado.edu/afridi/index.html">Home</a> | 
+      
+<a href="http://ecee.colorado.edu/afridi/research.html">Research</a> |
+      
+<a href="http://ecee.colorado.edu/afridi/people.html">People</a> |
+      
+<a href="http://ecee.colorado.edu/afridi/publications.html">Publications</a> |
+      
+<a href="http://ecee.colorado.edu/afridi/awards.html">Awards</a> |
+      
+<a href="http://ecee.colorado.edu/afridi/teaching.html"><b>Teaching</b></a>
+        <li>
+<a href="http://ecee.colorado.edu/~ecen5817">
+        <li>
+<a href="http://stellar.mit.edu/S/course/6/fa13/6.332/">Fall 2013: Advanced Topics in Power Electronics (6.332)</a></li>
+        <li>
+<a href="http://stellar.mit.edu/S/course/6/fa13/6.169/">Fall 2013: Theory and Application of Circuits and Electronics (6.169)</a></li>
+        <li>
+<a href="http://stellar.mit.edu/S/course/6/sp13/6.334/">Spring 2013: Power Electronics (6.334)</a></li>
+        <li>
+<a href="https://www.edx.org/courses/MITx/6.002x/2012_Fall/about">Fall 2012: Circuits and Electronics (6.002x) - MITx on edX</a></li>
+        <li>
+<a href="https://stellar.mit.edu/S/course/6/fa12/6.169/">Fall 2012: Theory and Application of Circuits and Electronics (6.169)</a></li>
+        <li>
+<a href="http://stellar.mit.edu/S/course/6/sp12/6.002/">Spring 2012: Circuits and Electronics (6.002)</a></li>
+        <li>
+<a href="https://stellar.mit.edu/S/course/6/sp12/6.S076/">Spring 2012: Theory and Application of Circuits and Electronics (6.S076)</a></li>
+        <li>
+<a href="http://stellar.mit.edu/S/course/6/fa11/6.002/">Fall 2011: Circuits and Electronics (6.002)</a></li>
+        <li>
+<a href="http://stellar.mit.edu/S/course/6/sp11/6.002/">Spring 2011: Circuits and Electronics (6.002)</a></li>
+        <li>
+<a href="http://stellar.mit.edu/S/course/6/fa10/6.002/">Fall 2010: Circuits and Electronics (6.002)</a></li>
+        <li>
+<a href="http://stellar.mit.edu/S/course/6/sp10/6.334/">Spring 2010: Power Electronics (6.334)</a></li>
+        <li>
+<a href="http://stellar.mit.edu/S/course/6/fa09/6.002/">Fall 2009: Circuits and Electronics (6.002)</a></li>
+        <li>
+<a href="http://stellar.mit.edu/S/course/6/fa09/6.A54/">Fall 2009: Smart Electric Grid (6.A54)</a></li>
+        <li>
+<a href="http://stellar.mit.edu/S/course/6/sp09/6.334/">Spring 2009: Power Electronics (6.334)</a></li>
